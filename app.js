@@ -255,6 +255,11 @@ function initCy() {
     if (evt.target === CY) clearSelection();
   });
 
+  // Expose for debugging + headless verify
+  window.CY = CY;
+  window.SPEC = SPEC;
+  window.selectNode = selectNode;
+
   document.getElementById("btn-reset").addEventListener("click", () => {
     CY.layout({ name: "dagre", rankDir: "LR", nodeSep: 30, rankSep: 90, edgeSep: 12 }).run();
     CY.fit(null, 60);

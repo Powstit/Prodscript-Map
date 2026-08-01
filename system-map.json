@@ -1,5 +1,5 @@
 {
-  "version": "1.4.0",
+  "version": "1.5.0-MVP",
   "generatedAt": "2026-08-01",
   "app": "ProdScript",
   "repo": "https://github.com/Powstit/Prodscript",
@@ -1340,6 +1340,137 @@
         "ltc-engine",
         "timeline"
       ]
+    },
+    {
+      "id": "api-cue-state",
+      "label": "PATCH /api/cues/[id]/state",
+      "category": "api",
+      "signoff": "wire",
+      "file": "src/app/api/cues/[id]/state/route.ts",
+      "goldenJourney": true,
+      "notes": "Sprint 4: cue state transitions with permission gates + audit",
+      "journeys": [
+        "sprint-4",
+        "owner-review",
+        "show-night"
+      ],
+      "features": [
+        "cues",
+        "owner-review"
+      ]
+    },
+    {
+      "id": "api-cue-ack",
+      "label": "/api/cues/[id]/ack",
+      "category": "api",
+      "signoff": "wire",
+      "file": "src/app/api/cues/[id]/ack/route.ts",
+      "goldenJourney": true,
+      "notes": "Sprint 4: dept acknowledgements (sent/viewed/received/acknowledged)",
+      "journeys": [
+        "sprint-4",
+        "show-night"
+      ],
+      "features": [
+        "cues",
+        "owner-review"
+      ]
+    },
+    {
+      "id": "api-project-freeze",
+      "label": "/api/projects/[id]/freeze",
+      "category": "api",
+      "signoff": "wire",
+      "file": "src/app/api/projects/[id]/freeze/route.ts",
+      "goldenJourney": true,
+      "notes": "Sprint 4: snapshot all songs+cues+files+ltc as immutable version",
+      "journeys": [
+        "sprint-4",
+        "owner-review",
+        "show-night"
+      ],
+      "features": [
+        "versions"
+      ]
+    },
+    {
+      "id": "api-project-audit",
+      "label": "/api/projects/[id]/audit",
+      "category": "api",
+      "signoff": "wire",
+      "file": "src/app/api/projects/[id]/audit/route.ts",
+      "goldenJourney": true,
+      "notes": "Sprint 4: read audit log for project",
+      "journeys": [
+        "sprint-4"
+      ],
+      "features": [
+        "versions"
+      ]
+    },
+    {
+      "id": "api-showpack",
+      "label": "/api/projects/[id]/versions/[versionId]/pack/[deptId]",
+      "category": "api",
+      "signoff": "wire",
+      "file": "src/app/api/projects/[id]/versions/[versionId]/pack/[departmentId]/route.ts",
+      "goldenJourney": true,
+      "notes": "Sprint 4: streams ZIP with manifest+cues.csv+files+ltc per dept",
+      "journeys": [
+        "sprint-4",
+        "show-night"
+      ],
+      "features": [
+        "versions",
+        "file-upload"
+      ]
+    },
+    {
+      "id": "api-project-import",
+      "label": "/api/projects/[id]/import",
+      "category": "api",
+      "signoff": "wire",
+      "file": "src/app/api/projects/[id]/import/route.ts",
+      "goldenJourney": false,
+      "notes": "Sprint 4: parse XLSX/CSV, create songs+cues in Neon",
+      "journeys": [
+        "sprint-4",
+        "new-show"
+      ],
+      "features": [
+        "import"
+      ]
+    },
+    {
+      "id": "surf-publish",
+      "label": "/projects/[id] Publish tab",
+      "category": "surface",
+      "signoff": "wire",
+      "file": "src/app/projects/[id]/project-detail-client.tsx",
+      "goldenJourney": true,
+      "notes": "Sprint 4: freeze version + per-dept Show Pack download UI",
+      "journeys": [
+        "sprint-4",
+        "show-night"
+      ],
+      "features": [
+        "versions"
+      ]
+    },
+    {
+      "id": "cross-audit",
+      "label": "audit.ts (writeAudit helper)",
+      "category": "cross",
+      "signoff": "wire",
+      "file": "src/lib/audit.ts",
+      "goldenJourney": true,
+      "notes": "Sprint 4: writeAudit(session, projectId, action, target, payload)",
+      "journeys": [
+        "sprint-4"
+      ],
+      "features": [
+        "versions"
+      ]
     }
   ],
   "edges": [
@@ -1927,6 +2058,106 @@
       "from": "tbl-project-files",
       "to": "tbl-departments",
       "kind": "depends"
+    },
+    {
+      "from": "surf-timeline",
+      "to": "api-cue-state",
+      "kind": "writes"
+    },
+    {
+      "from": "surf-timeline",
+      "to": "api-cue-ack",
+      "kind": "writes"
+    },
+    {
+      "from": "surf-publish",
+      "to": "api-project-freeze",
+      "kind": "writes"
+    },
+    {
+      "from": "surf-publish",
+      "to": "api-showpack",
+      "kind": "reads"
+    },
+    {
+      "from": "surf-project-detail",
+      "to": "api-project-audit",
+      "kind": "reads"
+    },
+    {
+      "from": "surf-import",
+      "to": "api-project-import",
+      "kind": "writes"
+    },
+    {
+      "from": "api-cue-state",
+      "to": "tbl-cues",
+      "kind": "writes"
+    },
+    {
+      "from": "api-cue-state",
+      "to": "cross-audit",
+      "kind": "depends"
+    },
+    {
+      "from": "api-cue-ack",
+      "to": "tbl-acks",
+      "kind": "writes"
+    },
+    {
+      "from": "api-project-freeze",
+      "to": "tbl-versions",
+      "kind": "writes"
+    },
+    {
+      "from": "api-project-freeze",
+      "to": "tbl-projects",
+      "kind": "writes"
+    },
+    {
+      "from": "api-project-freeze",
+      "to": "cross-audit",
+      "kind": "depends"
+    },
+    {
+      "from": "api-project-audit",
+      "to": "tbl-audit",
+      "kind": "reads"
+    },
+    {
+      "from": "api-showpack",
+      "to": "tbl-versions",
+      "kind": "reads"
+    },
+    {
+      "from": "api-showpack",
+      "to": "tbl-project-files",
+      "kind": "reads"
+    },
+    {
+      "from": "api-showpack",
+      "to": "tbl-songs",
+      "kind": "reads"
+    },
+    {
+      "from": "api-showpack",
+      "to": "ext-vercel-blob",
+      "kind": "reads"
+    },
+    {
+      "from": "api-project-import",
+      "to": "tbl-songs",
+      "kind": "writes"
+    },
+    {
+      "from": "api-project-import",
+      "to": "tbl-cues",
+      "kind": "writes"
+    },
+    {
+      "from": "cross-audit",
+      "to": "tbl-audit",
+      "kind": "writes"
     }
   ]
 }

@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "generatedAt": "2026-08-01",
   "app": "ProdScript",
   "repo": "https://github.com/Powstit/Prodscript",
@@ -892,6 +892,118 @@
       "features": [
         "tenant-auth"
       ]
+    },
+    {
+      "id": "surf-spike",
+      "label": "/spike (staging)",
+      "category": "surface",
+      "signoff": "wire",
+      "file": "src/app/spike/spike-client.tsx",
+      "goldenJourney": false,
+      "notes": "Sprint 0 joined proof: upload audio, timeline lanes, LTC generate + verify + download, file attach",
+      "journeys": [
+        "sprint-0"
+      ],
+      "features": [
+        "ltc-engine",
+        "timeline",
+        "file-upload"
+      ]
+    },
+    {
+      "id": "api-spike-upload",
+      "label": "/api/spike/upload",
+      "category": "api",
+      "signoff": "wire",
+      "file": "src/app/api/spike/upload/route.ts",
+      "goldenJourney": false,
+      "notes": "Vercel Blob handleUpload endpoint for cue file attachments",
+      "journeys": [
+        "sprint-0"
+      ],
+      "features": [
+        "file-upload"
+      ]
+    },
+    {
+      "id": "cross-ltc-encoder",
+      "label": "ltc.ts (pure JS)",
+      "category": "cross",
+      "signoff": "wire",
+      "file": "src/lib/ltc.ts",
+      "goldenJourney": true,
+      "notes": "566 lines. Pure-JS LTC encoder + biphase-mark decoder. Round-trip verified. Sprint 0.",
+      "journeys": [
+        "sprint-0",
+        "show-night"
+      ],
+      "features": [
+        "ltc-engine"
+      ]
+    },
+    {
+      "id": "ext-vercel-blob",
+      "label": "Vercel Blob",
+      "category": "external",
+      "signoff": "wire",
+      "file": "external",
+      "goldenJourney": false,
+      "notes": "File storage for cue attachments. Fallback until Cloudflare R2 keys arrive.",
+      "journeys": [
+        "sprint-0"
+      ],
+      "features": [
+        "file-upload"
+      ]
+    },
+    {
+      "id": "cross-wavesurfer",
+      "label": "wavesurfer.js",
+      "category": "cross",
+      "signoff": "wire",
+      "file": "src/app/spike/spike-client.tsx",
+      "goldenJourney": true,
+      "notes": "BSD-3, v7.12.11, waveform + playhead sync",
+      "journeys": [
+        "sprint-0",
+        "show-night"
+      ],
+      "features": [
+        "timeline"
+      ]
+    },
+    {
+      "id": "cross-timeline-editor",
+      "label": "react-timeline-editor",
+      "category": "cross",
+      "signoff": "wire",
+      "file": "src/app/spike/timeline-editor.tsx",
+      "goldenJourney": true,
+      "notes": "MIT, v1.0.0, draggable cue blocks + lanes",
+      "journeys": [
+        "sprint-0",
+        "show-night"
+      ],
+      "features": [
+        "timeline"
+      ]
+    },
+    {
+      "id": "cross-smpte-tc",
+      "label": "js-timecode (SMPTE)",
+      "category": "cross",
+      "signoff": "wire",
+      "file": "src/lib/ltc.ts",
+      "goldenJourney": true,
+      "notes": "MIT, @spiretechnology/js-timecode, SMPTE math",
+      "journeys": [
+        "sprint-0",
+        "show-night"
+      ],
+      "features": [
+        "ltc-engine",
+        "timeline"
+      ]
     }
   ],
   "edges": [
@@ -1224,6 +1336,36 @@
       "from": "cross-proxy",
       "to": "ext-clerk",
       "kind": "protects"
+    },
+    {
+      "from": "surf-spike",
+      "to": "cross-wavesurfer",
+      "kind": "depends"
+    },
+    {
+      "from": "surf-spike",
+      "to": "cross-timeline-editor",
+      "kind": "depends"
+    },
+    {
+      "from": "surf-spike",
+      "to": "cross-ltc-encoder",
+      "kind": "depends"
+    },
+    {
+      "from": "surf-spike",
+      "to": "api-spike-upload",
+      "kind": "writes"
+    },
+    {
+      "from": "api-spike-upload",
+      "to": "ext-vercel-blob",
+      "kind": "writes"
+    },
+    {
+      "from": "cross-ltc-encoder",
+      "to": "cross-smpte-tc",
+      "kind": "depends"
     }
   ]
 }

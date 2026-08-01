@@ -1,0 +1,116 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-08-01",
+  "features": [
+    {
+      "id": "master-timeline",
+      "name": "Master Timeline",
+      "oneLine": "The show as one draggable, scrollable timeline with every department on its own lane.",
+      "scenario": "The Show Caller opens ProdScript. She sees the whole 5-song show as a horizontal timeline. She drags the red playhead to song 3, chorus. She clicks a lighting cue block. The Inspector on the right opens. She reads the note the Lighting Director left. She acknowledges. The cue turns green.",
+      "whoUses": ["Show Caller", "Production Manager", "Lighting Director", "Playback Engineer"],
+      "status": "waiting",
+      "nodes": ["surf-home", "cmp-timeline", "cmp-transport", "cmp-inspector", "cmp-cue-block", "tbl-cues", "tbl-songs", "cross-tlctx", "cross-tc"],
+      "ironGates": ["IG-FRAMES-CANONICAL", "IG-STATE-TRANSITION", "IG-SHOW-MODE-LOCK"]
+    },
+    {
+      "id": "show-caller",
+      "name": "Show Caller view",
+      "oneLine": "The running-order printout page at /script. Doubles as a paper backup if the browser hangs on show night.",
+      "scenario": "45 minutes before doors, the Show Caller hits print on /script. She staples the paper copy to her calling desk. If the browser hangs during the show, she still knows every cue, in order, on paper.",
+      "whoUses": ["Show Caller", "Assistant Stage Manager", "Stage Manager"],
+      "status": "waiting",
+      "nodes": ["surf-script", "tbl-cues", "tbl-songs"],
+      "ironGates": []
+    },
+    {
+      "id": "ai-copilot",
+      "name": "AI Copilot",
+      "oneLine": "A chat assistant that can propose changes to the show, but can never edit anything live.",
+      "scenario": "The Lighting Director asks the AI: 'Bump the pyro cue on Song 4 back by 6 frames.' The AI thinks, writes a proposal into the review queue, and pings the owner. The owner approves or rejects. Nothing changes until an owner says yes.",
+      "whoUses": ["Show Director", "Production Manager", "Lighting Director", "Any Department Head"],
+      "status": "wire",
+      "nodes": ["cmp-copilot", "api-ai", "ext-openai", "tbl-proposals", "surf-review"],
+      "ironGates": ["IG-AI-NO-DIRECT-WRITE"]
+    },
+    {
+      "id": "feedback-terminal",
+      "name": "Feedback Terminal",
+      "oneLine": "A persistent drawer at the bottom of every page. Any crew member can drop a note, tagged by area, without breaking their flow.",
+      "scenario": "During rehearsal, the Monitor Engineer notices the click track is 2ms early. He opens the Terminal Drawer, types the note, tags it 'audio', hits send. The note lands in the feedback table. The Production Manager sees it in the morning digest.",
+      "whoUses": ["Every crew member"],
+      "status": "wire",
+      "nodes": ["cmp-terminal", "api-feedback", "tbl-feedback", "cross-store"],
+      "ironGates": []
+    },
+    {
+      "id": "presets",
+      "name": "Presets library",
+      "oneLine": "A reusable library of cue templates. A 'front truss wash' or a 'confetti drop' saved once, dragged into any show.",
+      "scenario": "The Production Manager opens /presets. He scrolls through his touring company's 400 saved cue templates. He picks the 'Standard blackout' and drags it into the current show's chorus. It lands as a new cue, ready to edit.",
+      "whoUses": ["Production Manager", "Lighting Director", "Playback Engineer"],
+      "status": "waiting",
+      "nodes": ["surf-presets", "cmp-presetdraw", "tbl-presets", "tbl-rig"],
+      "ironGates": []
+    },
+    {
+      "id": "owner-review",
+      "name": "Owner Review queue",
+      "oneLine": "One inbox where every proposed change (from AI, from a department head, from anyone) waits for the owner's yes or no.",
+      "scenario": "The Production Manager opens /review at 9am. She sees 12 proposals. Each one shows a clear before / after diff. She approves 8, rejects 2, comments on 2 more. The 8 approved land in the Master Timeline. The 2 rejected are archived with her reason.",
+      "whoUses": ["Production Manager", "Show Director", "Executive Producer"],
+      "status": "waiting",
+      "nodes": ["surf-review", "tbl-proposals", "tbl-cues", "tbl-audit"],
+      "ironGates": ["IG-SHOW-MODE-LOCK"]
+    },
+    {
+      "id": "versions",
+      "name": "Versions and Diffs",
+      "oneLine": "A history of every published version of the show, with a diff of what changed between v1 and v2.",
+      "scenario": "The Show Director wants to know why the show feels different than in Manchester. He opens /versions, picks 'v4 (Manchester)' and 'v7 (London)', and reads the diff. He sees 14 cue timings were nudged and 2 new cues were added between the two cities.",
+      "whoUses": ["Show Director", "Production Manager", "Owner"],
+      "status": "waiting",
+      "nodes": ["surf-versions", "tbl-versions", "tbl-cues"],
+      "ironGates": ["IG-FRAMES-CANONICAL"]
+    },
+    {
+      "id": "ltc-generation",
+      "name": "LTC Generation",
+      "oneLine": "The timeline as the SMPTE LTC master clock. Every console latches to it.",
+      "scenario": "At soundcheck, the Playback Engineer opens /ltc. He picks the song list for tonight and clicks 'Generate'. ProdScript renders the LTC signal (simulated for now, real WAV encode in v2). Every console listening downstream latches on.",
+      "whoUses": ["Playback Engineer", "Music Director"],
+      "status": "waiting",
+      "nodes": ["surf-ltc", "tbl-songs", "cross-tc"],
+      "ironGates": ["IG-FRAMES-CANONICAL"]
+    },
+    {
+      "id": "rig-management",
+      "name": "Rig Management",
+      "oneLine": "The per-project inventory of every physical fixture, motor, and truss on the current tour.",
+      "scenario": "The Lighting Director opens /rig. He sees every fixture in the touring inventory: 240 movers, 96 wash lights, 8 followspots. He adds a new fixture the vendor just shipped. Now every preset that references that fixture type validates against it.",
+      "whoUses": ["Lighting Director", "Production Manager"],
+      "status": "waiting",
+      "nodes": ["surf-rig", "tbl-rig", "tbl-presets"],
+      "ironGates": []
+    },
+    {
+      "id": "tenant-auth",
+      "name": "Tenant and Auth",
+      "oneLine": "The multi-tenant sign-in system. Every touring company is one Clerk org. Members carry roles.",
+      "scenario": "A new Stage Manager joins the tour mid-run. The Production Manager sends her an invite from the admin console. She gets a Clerk-branded email, sets her password, and lands in ProdScript with the exact role and permissions the owner assigned.",
+      "whoUses": ["Owner", "Production Manager", "Every crew member on sign-in"],
+      "status": "wire",
+      "nodes": ["surf-signin", "surf-signup", "cmp-authwrap", "cross-proxy", "cross-session", "ext-clerk", "tbl-tenants", "tbl-users", "api-seed-orgs"],
+      "ironGates": ["IG-AUTH-DEGRADE", "IG-TENANT-SCOPE"]
+    },
+    {
+      "id": "email",
+      "name": "Email (Resend)",
+      "oneLine": "Branded ProdScript email for invites, notifications, and acknowledgement requests.",
+      "scenario": "The owner clicks 'Invite crew'. ProdScript sends 40 branded emails via Resend. Each one has the recipient's name, the touring company, and a one-click accept button. When domain verification lands, deliverability jumps.",
+      "whoUses": ["Owner", "Production Manager", "Every invited crew member"],
+      "status": "wire",
+      "nodes": ["cross-mail", "ext-resend", "api-seed-orgs"],
+      "ironGates": []
+    }
+  ]
+}

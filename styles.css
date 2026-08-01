@@ -442,3 +442,347 @@ main {
   width: 20px;
   height: 2px;
 }
+
+/* ===============================================================
+   Landing page (/)
+   =============================================================== */
+body.landing {
+  overflow: auto;
+}
+body.landing #topbar {
+  border-bottom: 1px solid var(--hairline);
+}
+.landing-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 40px;
+}
+.landing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  max-width: 1200px;
+  width: 100%;
+}
+.landing-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  padding: 32px 28px;
+  text-decoration: none;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color 160ms, transform 160ms, background 160ms;
+  min-height: 260px;
+}
+.landing-card:hover {
+  border-color: var(--accent);
+  background: var(--bg-card);
+  transform: translateY(-2px);
+}
+.landing-card-tag {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+}
+.landing-card-title {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 38px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.landing-card-body {
+  color: var(--ink-muted);
+  font-size: 14px;
+  line-height: 1.55;
+  flex: 1;
+}
+.landing-card-arrow {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+.landing-footer {
+  border-top: 1px solid var(--hairline);
+  background: var(--bg-panel);
+  padding: 14px 24px;
+  display: flex;
+  gap: 12px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  color: var(--ink-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.footer-link {
+  color: var(--ink-muted);
+  text-decoration: none;
+  transition: color 120ms;
+}
+.footer-link:hover { color: var(--accent); }
+.footer-sep { color: var(--ink-dim); }
+
+/* ===============================================================
+   Scrollable non-graph pages (journeys, features)
+   =============================================================== */
+body.scrollable {
+  overflow: auto;
+  height: auto;
+  min-height: 100vh;
+}
+body.scrollable #topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+/* ===============================================================
+   Journeys page
+   =============================================================== */
+.journeys-main {
+  padding: 32px 40px 60px;
+}
+.journeys-intro {
+  max-width: 900px;
+  margin: 0 auto 28px;
+  color: var(--ink-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.journeys-scroll {
+  overflow-x: auto;
+  padding-bottom: 20px;
+}
+.journeys-columns {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 380px;
+  gap: 20px;
+  align-items: start;
+  min-width: 0;
+}
+.journey-col {
+  background: var(--bg-panel);
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.journey-head {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--hairline);
+}
+.journey-title {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.journey-purpose {
+  margin-top: 6px;
+  color: var(--ink-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.journey-step {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 12px;
+  padding: 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+}
+.journey-step.can-fail {
+  border-left: 3px solid var(--danger);
+}
+.step-n {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--accent);
+  line-height: 1;
+  padding-top: 2px;
+}
+.step-body { min-width: 0; }
+.step-action {
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.55;
+}
+.step-under {
+  margin-top: 10px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  color: var(--ink-dim);
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+}
+.journey-node, .feature-node {
+  color: var(--ink-muted);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--hairline-strong);
+  transition: color 120ms, border-color 120ms;
+}
+.journey-node:hover, .feature-node:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+.step-under .sep, .feature-nodes-list .sep {
+  color: var(--ink-dim);
+  margin: 0 2px;
+}
+.step-fail {
+  margin-top: 10px;
+  padding: 8px 10px;
+  background: rgba(255, 51, 85, 0.08);
+  border: 1px solid rgba(255, 51, 85, 0.25);
+  border-radius: 6px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: baseline;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.fail-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--danger);
+  flex-shrink: 0;
+  align-self: center;
+}
+.fail-label {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  color: var(--danger);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.fail-text { color: var(--ink-muted); }
+
+/* ===============================================================
+   Features page
+   =============================================================== */
+.features-main {
+  padding: 32px 40px 60px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.features-intro {
+  color: var(--ink-muted);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  max-width: 900px;
+}
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+@media (max-width: 1100px) {
+  .features-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 720px) {
+  .features-grid { grid-template-columns: 1fr; }
+}
+.feature-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.feature-head {
+  border-bottom: 1px solid var(--hairline);
+  padding-bottom: 12px;
+}
+.feature-name {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+.feature-oneline {
+  color: var(--ink-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.feature-scenario p {
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 6px 0 0;
+}
+.feature-label {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9px;
+  color: var(--ink-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.feature-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline);
+}
+.feature-stats .stat {
+  background: var(--bg-card);
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+.feature-stats .stat-value {
+  font-size: 12px;
+  color: var(--ink);
+  line-height: 1.4;
+}
+.signoff-pill {
+  display: inline-block;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9px;
+  padding: 3px 7px;
+  border-radius: 3px;
+  letter-spacing: 0.06em;
+}
+.feature-nodes-list {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  color: var(--ink-dim);
+  line-height: 1.7;
+}
+.feature-gates .ig-list {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+}
+.feature-gates .ig-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+.feature-gates .ig-list li:last-child { border-bottom: none; }
+

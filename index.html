@@ -7,92 +7,67 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/cytoscape@3.30.2/dist/cytoscape.min.js"></script>
-  <script src="https://unpkg.com/dagre@0.8.5/dist/dagre.min.js"></script>
-  <script src="https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body>
+<body class="landing">
   <header id="topbar">
     <div class="brand">
       <span class="brand-mark">P/S</span>
       <div class="brand-txt">
         <div class="brand-title">ProdScript System Map</div>
-        <div class="brand-sub" id="version-line">loading…</div>
+        <div class="brand-sub" id="version-line">loading...</div>
       </div>
-    </div>
-    <div class="filters" id="filters"></div>
-    <div class="rightbar">
-      <span class="hint">Click a node to see its blast radius. Drag to rearrange. Ctrl-click multi-select.</span>
-      <button id="btn-reset">RESET LAYOUT</button>
-      <button id="btn-export">EXPORT LAYOUT</button>
-      <a class="btn-link" href="https://github.com/Powstit/Prodscript/blob/main/docs/system-map.json" target="_blank">EDIT DATA →</a>
     </div>
   </header>
 
-  <main>
-    <div id="cy"></div>
-    <aside id="panel">
-      <div id="panel-empty">
-        <div class="empty-title">Click any node</div>
-        <div class="empty-body">
-          <p>You see: <strong>what depends on it</strong>, <strong>what it depends on</strong>, and every <strong>Iron Gate</strong> that protects it.</p>
-          <p>Before shipping any code that touches a node, review its blast radius. That is how we prevent regression from day one.</p>
-        </div>
-        <div class="stats" id="stats"></div>
-      </div>
-      <div id="panel-content" hidden>
-        <div class="panel-head">
-          <span class="node-cat" id="node-cat">…</span>
-          <h2 id="node-label">…</h2>
-          <div class="node-sub" id="node-file">…</div>
-          <div class="node-notes" id="node-notes">…</div>
-          <div class="node-signoff" id="node-signoff">…</div>
-        </div>
+  <main class="landing-main">
+    <div class="landing-grid">
+      <a class="landing-card" href="/graph/" data-testid="card-graph">
+        <div class="landing-card-tag">FOR ENGINEERS</div>
+        <div class="landing-card-title">Graph</div>
+        <div class="landing-card-body">Boxes and lines. Click a node for its blast radius, dependencies, and the Iron Gates that guard it. Use before touching any file.</div>
+        <div class="landing-card-arrow">Open graph</div>
+      </a>
 
-        <section class="panel-section">
-          <h3>Blast radius</h3>
-          <div class="metric-row">
-            <div class="metric"><span class="metric-value" id="metric-in">0</span><span class="metric-label">reads from / renders / depends</span></div>
-            <div class="metric"><span class="metric-value" id="metric-out">0</span><span class="metric-label">writes to / depended on</span></div>
-          </div>
-        </section>
+      <a class="landing-card" href="/journeys/" data-testid="card-journeys">
+        <div class="landing-card-tag">FOR HUMANS</div>
+        <div class="landing-card-title">Journeys</div>
+        <div class="landing-card-body">Step-by-step customer paths through the app, in plain English. From invite to show night to owner review.</div>
+        <div class="landing-card-arrow">Open journeys</div>
+      </a>
 
-        <section class="panel-section">
-          <h3>Depends on / reads</h3>
-          <ul class="link-list" id="deps-out"></ul>
-        </section>
-
-        <section class="panel-section">
-          <h3>Depended on / writes to</h3>
-          <ul class="link-list" id="deps-in"></ul>
-        </section>
-
-        <section class="panel-section" id="ig-section" hidden>
-          <h3>Iron Gates guarding this</h3>
-          <ul class="ig-list" id="ig-list"></ul>
-        </section>
-
-        <section class="panel-section">
-          <h3>Regression checklist for edits here</h3>
-          <ul class="check-list" id="check-list"></ul>
-        </section>
-
-        <div class="panel-actions">
-          <button id="btn-focus">FOCUS SUBGRAPH</button>
-          <button id="btn-clear">CLEAR SELECTION</button>
-          <a class="btn-link" id="btn-file" target="_blank" href="#">OPEN FILE →</a>
-        </div>
-      </div>
-    </aside>
+      <a class="landing-card" href="/features/" data-testid="card-features">
+        <div class="landing-card-tag">FOR HUMANS</div>
+        <div class="landing-card-title">Features</div>
+        <div class="landing-card-body">Every feature as a card. What it does, a real scenario, who uses it, and the pieces that power it under the hood.</div>
+        <div class="landing-card-arrow">Open features</div>
+      </a>
+    </div>
   </main>
 
-  <div id="legend">
-    <div class="legend-group" id="legend-cat"></div>
-    <div class="legend-group" id="legend-signoff"></div>
-    <div class="legend-group" id="legend-edge"></div>
-  </div>
+  <footer class="landing-footer">
+    <a href="https://github.com/Powstit/Prodscript-Map" target="_blank" class="footer-link">GitHub</a>
+    <span class="footer-sep">/</span>
+    <span id="footer-version">v...</span>
+    <span class="footer-sep">/</span>
+    <span id="footer-updated">updated ...</span>
+  </footer>
 
-  <script src="/app.js" defer></script>
+  <script>
+    (async () => {
+      try {
+        const res = await fetch("/system-map.json", { cache: "no-store" });
+        if (!res.ok) throw new Error("map " + res.status);
+        const map = await res.json();
+        document.getElementById("version-line").textContent =
+          `v${map.version} / ${map.nodes.length} nodes / ${map.edges.length} edges`;
+        document.getElementById("footer-version").textContent = "v" + map.version;
+        document.getElementById("footer-updated").textContent = "updated " + map.generatedAt;
+      } catch (e) {
+        document.getElementById("version-line").textContent = "error loading map";
+        console.error(e);
+      }
+    })();
+  </script>
 </body>
 </html>

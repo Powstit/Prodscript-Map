@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ProdScript · Features</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body class="scrollable">
+  <header id="topbar">
+    <a class="brand" href="/" style="text-decoration:none;color:inherit;">
+      <span class="brand-mark">P/S</span>
+      <div class="brand-txt">
+        <div class="brand-title">Features</div>
+        <div class="brand-sub">what each surface actually does</div>
+      </div>
+    </a>
+    <div class="filters"></div>
+    <div class="rightbar">
+      <a class="btn-link" href="/graph/">GRAPH</a>
+      <a class="btn-link" href="/journeys/">JOURNEYS</a>
+    </div>
+  </header>
+
+  <main class="features-main">
+    <div class="features-intro">
+      <p>Every feature in ProdScript, as a card. Each card includes a real story of someone using it, the crew roles that touch it, and the pieces that power it under the hood.</p>
+    </div>
+    <div class="features-grid" id="features-grid"></div>
+  </main>
+
+  <script>
+    (async () => {
+      const [featRes, mapRes] = await Promise.all([
+        fetch("/features.json", { cache: "no-store" }),
+        fetch("/system-map.json", { cache: "no-store" }),
+      ]);
+      if (!featRes.ok) throw new Error("features " + featRes.status);
+      if (!mapRes.ok) throw new Error("map " + mapRes.status);
+      const feat = await featRes.json();
+      const map = await mapRes.json();
+
+      const labelById = {};
+      for (const n of map.nodes) labelById[n.id] = n.label;
+
+      const igById = {};
+      for (const g of map.ironGates) igById[g.id] = g.rule;
+
+      const soMeta = map.legend.signoff;
+
+      const grid = document.getElementById("features-grid");
+
+      for (const f of feat.features) {
+        const card = document.createElement("article");
+        card.className = "feature-card";
+        card.setAttribute("data-testid", "feature-card");
+
+        const nodeLinks = (f.nodes || [])
+          .map((nid) => {
+            const label = labelById[nid] || nid;
+            return `<a class="feature-node" href="/graph/?node=${encodeURIComponent(nid)}" title="${nid}">${label}</a>`;
+          })
+          .join("<span class='sep'>,</span> ");
+
+        const gates = (f.ironGates || [])
+          .map((gid) => {
+            const rule = igById[gid] || "(rule text missing)";
+            return `<li><div class="ig-id">${gid}</div><div class="ig-rule">${rule}</div></li>`;
+          })
+          .join("");
+
+        const so = soMeta[f.status] || { label: f.status, color: "#8a8a96" };
+        const roles = (f.whoUses || []).join(", ");
+
+        card.innerHTML = `
+          <header class="feature-head">
+            <h2 class="feature-name">${f.name}</h2>
+            <div class="feature-oneline">${f.oneLine}</div>
+          </header>
+
+          <section class="feature-scenario">
+            <div class="feature-label">Scenario</div>
+            <p>${f.scenario}</p>
+          </section>
+
+          <div class="feature-stats">
+            <div class="stat">
+              <div class="feature-label">Who uses it</div>
+              <div class="stat-value">${roles}</div>
+            </div>
+            <div class="stat">
+              <div class="feature-label">Status</div>
+              <div class="stat-value">
+                <span class="signoff-pill" style="background:${so.color}22;color:${so.color};">${so.label}</span>
+              </div>
+            </div>
+            <div class="stat">
+              <div class="feature-label">Powered by</div>
+              <div class="stat-value">${(f.nodes || []).length} nodes</div>
+            </div>
+          </div>
+
+          <section class="feature-nodes">
+            <div class="feature-label">Under the hood</div>
+            <div class="feature-nodes-list">${nodeLinks || "(none)"}</div>
+          </section>
+
+          ${gates ? `
+          <section class="feature-gates">
+            <div class="feature-label">Iron Gates protecting this</div>
+            <ul class="ig-list">${gates}</ul>
+          </section>
+          ` : ""}
+        `;
+
+        grid.appendChild(card);
+      }
+    })().catch((e) => {
+      console.error(e);
+      const c = document.getElementById("features-grid");
+      c.innerHTML = `<div style="color:var(--danger);padding:24px;">Failed to load features: ${e.message}</div>`;
+    });
+  </script>
+</body>
+</html>

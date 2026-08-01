@@ -274,6 +274,17 @@ function initCy() {
 
   restoreLayout();
   applyFilters();
+
+  // Support ?node=<id> deep link from journeys/features pages
+  const params = new URLSearchParams(window.location.search);
+  const preselectId = params.get("node");
+  if (preselectId) {
+    const target = CY.getElementById(preselectId);
+    if (target && target.length > 0) {
+      selectNode(target);
+      CY.fit(target.closedNeighborhood(), 80);
+    }
+  }
 }
 
 function selectNode(node) {

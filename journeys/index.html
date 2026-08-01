@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ProdScript · Journeys</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body class="scrollable">
+  <header id="topbar">
+    <a class="brand" href="/" style="text-decoration:none;color:inherit;">
+      <span class="brand-mark">P/S</span>
+      <div class="brand-txt">
+        <div class="brand-title">Journeys</div>
+        <div class="brand-sub">customer paths, plain english</div>
+      </div>
+    </a>
+    <div class="filters"></div>
+    <div class="rightbar">
+      <a class="btn-link" href="/graph/">GRAPH</a>
+      <a class="btn-link" href="/features/">FEATURES</a>
+    </div>
+  </header>
+
+  <main class="journeys-main">
+    <div class="journeys-intro">
+      <p>Four core paths a person walks through ProdScript. If a step has a red dot, that is where the app can silently fail the user. Grey lines under each step name the pieces powering it.</p>
+    </div>
+    <div class="journeys-scroll">
+      <div class="journeys-columns" id="journeys-columns"></div>
+    </div>
+  </main>
+
+  <script>
+    (async () => {
+      const [jrnRes, mapRes] = await Promise.all([
+        fetch("/journeys.json", { cache: "no-store" }),
+        fetch("/system-map.json", { cache: "no-store" }),
+      ]);
+      if (!jrnRes.ok) throw new Error("journeys " + jrnRes.status);
+      if (!mapRes.ok) throw new Error("map " + mapRes.status);
+      const jrn = await jrnRes.json();
+      const map = await mapRes.json();
+
+      const labelById = {};
+      for (const n of map.nodes) labelById[n.id] = n.label;
+
+      const container = document.getElementById("journeys-columns");
+
+      for (const j of jrn.journeys) {
+        const col = document.createElement("section");
+        col.className = "journey-col";
+        col.setAttribute("data-testid", "journey-col");
+
+        const head = document.createElement("header");
+        head.className = "journey-head";
+        head.innerHTML = `
+          <div class="journey-title">${j.title}</div>
+          <div class="journey-purpose">${j.purpose}</div>
+        `;
+        col.appendChild(head);
+
+        for (const step of j.steps) {
+          const el = document.createElement("article");
+          el.className = "journey-step" + (step.canFail ? " can-fail" : "");
+          el.setAttribute("data-testid", "journey-step");
+
+          const nodeLinks = (step.nodes || [])
+            .map((nid) => {
+              const label = labelById[nid] || nid;
+              return `<a class="journey-node" href="/graph/?node=${encodeURIComponent(nid)}" title="${nid}">${label}</a>`;
+            })
+            .join("<span class='sep'>,</span> ");
+
+          el.innerHTML = `
+            <div class="step-n">${step.n}</div>
+            <div class="step-body">
+              <div class="step-action">${step.action}</div>
+              <div class="step-under">Under the hood: ${nodeLinks || "(no nodes tagged yet)"}</div>
+              ${step.canFail ? `
+                <div class="step-fail">
+                  <span class="fail-dot"></span>
+                  <span class="fail-label">If this breaks:</span>
+                  <span class="fail-text">${step.ifBreaks}</span>
+                </div>
+              ` : ""}
+            </div>
+          `;
+          col.appendChild(el);
+        }
+
+        container.appendChild(col);
+      }
+    })().catch((e) => {
+      console.error(e);
+      const c = document.getElementById("journeys-columns");
+      c.innerHTML = `<div style="color:var(--danger);padding:24px;">Failed to load journeys: ${e.message}</div>`;
+    });
+  </script>
+</body>
+</html>

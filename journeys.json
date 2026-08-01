@@ -1,0 +1,223 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-08-01",
+  "journeys": [
+    {
+      "id": "new-signup",
+      "title": "New person gets invited",
+      "purpose": "How Mark and Jedidiah first land in ProdScript.",
+      "steps": [
+        {
+          "n": 1,
+          "action": "An owner opens the admin seed page and sends invites for a touring company. The system spins up a Clerk organisation and mails every person on the list.",
+          "nodes": ["api-seed-orgs", "ext-clerk", "cross-mail", "ext-resend"],
+          "canFail": true,
+          "ifBreaks": "The Resend domain is not verified yet, so emails may land in spam or bounce. Nobody knows they were invited."
+        },
+        {
+          "n": 2,
+          "action": "The invited person gets a branded ProdScript email in their inbox. It has one big button that says 'Accept invitation'.",
+          "nodes": ["cross-mail", "ext-resend"],
+          "canFail": true,
+          "ifBreaks": "Email never arrives. Invitation stalls. Owner has to resend manually."
+        },
+        {
+          "n": 3,
+          "action": "They click the button. It opens the ProdScript sign-up page in their browser with the invite ticket already attached.",
+          "nodes": ["surf-signup", "ext-clerk"],
+          "canFail": true,
+          "ifBreaks": "If the Clerk publishable key is missing on the server, the sign-up page falls back to demo mode and never accepts the ticket."
+        },
+        {
+          "n": 4,
+          "action": "They set a password (or sign in with Google) and verify their email. Clerk knows they belong to their touring company.",
+          "nodes": ["surf-signup", "ext-clerk", "cross-proxy"],
+          "canFail": false,
+          "ifBreaks": ""
+        },
+        {
+          "n": 5,
+          "action": "They land on the Master Timeline. The top bar shows their touring company name. The Side Nav shows every route they have access to based on their role.",
+          "nodes": ["surf-home", "cmp-topbar", "cmp-sidenav", "cross-session", "cmp-authwrap"],
+          "canFail": true,
+          "ifBreaks": "If the session helper cannot read the Clerk org, the app drops them into the demo tenant instead. They see fake data, not their real show."
+        },
+        {
+          "n": 6,
+          "action": "They see the current project's timeline populated with every song, every cue, every department lane. Ready to work.",
+          "nodes": ["surf-home", "cmp-timeline", "cross-tlctx", "tbl-cues", "tbl-songs", "tbl-projects"],
+          "canFail": true,
+          "ifBreaks": "If the database is unreachable, the app falls back to mock data. They see a fake show, not theirs."
+        }
+      ]
+    },
+    {
+      "id": "show-night",
+      "title": "Show Caller on show night",
+      "purpose": "The golden path. 90,000 people in the stadium. Every cue on this timeline must fire on time.",
+      "steps": [
+        {
+          "n": 1,
+          "action": "Doors open. The Show Caller opens the Master Timeline on her calling station. She flips the Transport into 'rehearsal' mode for last soundcheck.",
+          "nodes": ["surf-home", "cmp-transport", "cross-tlctx", "tbl-shows"],
+          "canFail": false,
+          "ifBreaks": ""
+        },
+        {
+          "n": 2,
+          "action": "She scrubs the playhead through Song 1. Every department watches its lane light up in the right order. She spots one cue that is 3 frames late and clicks it. The Inspector opens on the right. She nudges the frame count and saves.",
+          "nodes": ["cmp-timeline", "cmp-cue-block", "cmp-inspector", "cross-tc", "tbl-cues"],
+          "canFail": true,
+          "ifBreaks": "If the state-machine guard fails, the cue could save in a broken state. Iron Gate IG-STATE-TRANSITION protects this."
+        },
+        {
+          "n": 3,
+          "action": "45 minutes to showtime. She flips the Transport into 'show' mode. From this moment on, only the Emergency Strip can override cue writes. Everything else locks.",
+          "nodes": ["cmp-transport", "cmp-emergency", "tbl-shows", "tbl-cues"],
+          "canFail": true,
+          "ifBreaks": "If Iron Gate IG-SHOW-MODE-LOCK fails, someone could still edit a cue live. That is the exact risk this gate prevents."
+        },
+        {
+          "n": 4,
+          "action": "She calls the standby chain over comms. 'Standby lights. Standby video. Standby pyro. Standby playback.' Playback fires the LTC master. Every department console latches to the timecode.",
+          "nodes": ["surf-script", "cmp-transport", "cross-tc", "tbl-cues"],
+          "canFail": true,
+          "ifBreaks": "If the frames-canonical rule is broken (Iron Gate IG-FRAMES-CANONICAL), the LTC output could drift and every department fires late."
+        },
+        {
+          "n": 5,
+          "action": "The show runs. Every cue fires on its frame. The Show Caller watches the playhead move across the timeline, calling 'GO' over comms as each block hits. Every acknowledgement lands in the audit trail.",
+          "nodes": ["cmp-timeline", "cmp-transport", "cmp-cue-block", "tbl-cues", "tbl-acks", "tbl-audit"],
+          "canFail": true,
+          "ifBreaks": "If the timeline stops rendering (bad state, browser hang), she falls back to the /script paper printout. That is why /script exists as a physical backup."
+        },
+        {
+          "n": 6,
+          "action": "Something goes wrong mid-song 4. Sparks on the front truss. She double-taps ALL STOP on the Emergency Strip. Every department kills output. Audience is safe.",
+          "nodes": ["cmp-emergency", "tbl-cues", "tbl-audit"],
+          "canFail": true,
+          "ifBreaks": "If the Emergency Strip is not two-tap protected, an accidental brush could kill the show for no reason. If it is too slow to fire, a real emergency costs safety."
+        },
+        {
+          "n": 7,
+          "action": "After the encore, she flips the show into 'complete' mode. The load-out crew is cleared to start. Every cue that fired tonight is now permanent in the audit log.",
+          "nodes": ["cmp-transport", "tbl-shows", "tbl-audit"],
+          "canFail": false,
+          "ifBreaks": ""
+        }
+      ]
+    },
+    {
+      "id": "owner-review",
+      "title": "Owner reviews an AI change",
+      "purpose": "How the AI Copilot suggests a change, and how the owner keeps final control.",
+      "steps": [
+        {
+          "n": 1,
+          "action": "A department head asks the AI Copilot: 'Add a follow-spot pickup on Song 3, chorus, on the artist.' The AI thinks, then writes a proposal (not a live change) into the review queue.",
+          "nodes": ["cmp-copilot", "api-ai", "ext-openai", "tbl-proposals"],
+          "canFail": true,
+          "ifBreaks": "If Iron Gate IG-AI-NO-DIRECT-WRITE fails, the AI could edit the cue directly, bypassing owner review. That gate exists to make this impossible."
+        },
+        {
+          "n": 2,
+          "action": "The owner sees the review-count badge tick up in the top bar. They click it. It opens the /review page.",
+          "nodes": ["cmp-topbar", "surf-review", "tbl-proposals"],
+          "canFail": false,
+          "ifBreaks": ""
+        },
+        {
+          "n": 3,
+          "action": "The review page lists every pending proposal. Each row shows: what the AI proposes, which cue, what would change, what was there before.",
+          "nodes": ["surf-review", "tbl-proposals", "tbl-cues"],
+          "canFail": false,
+          "ifBreaks": ""
+        },
+        {
+          "n": 4,
+          "action": "The owner reads the diff. They see the AI wants to add a lighting cue at frame 04:32:18. They approve.",
+          "nodes": ["surf-review", "tbl-proposals"],
+          "canFail": false,
+          "ifBreaks": ""
+        },
+        {
+          "n": 5,
+          "action": "On approval, the cue is written into the cues table. The state machine records who approved it and when. The audit log gets a row.",
+          "nodes": ["surf-review", "tbl-cues", "tbl-audit"],
+          "canFail": true,
+          "ifBreaks": "If show mode is on for tonight's city, this write should 403. Iron Gate IG-SHOW-MODE-LOCK is the guard."
+        },
+        {
+          "n": 6,
+          "action": "The Master Timeline refreshes. The new cue appears in the lighting lane at the right frame. Everyone watching the timeline sees it live.",
+          "nodes": ["surf-home", "cmp-timeline", "cross-tlctx", "tbl-cues"],
+          "canFail": false,
+          "ifBreaks": ""
+        }
+      ]
+    },
+    {
+      "id": "new-show",
+      "title": "Building a new show from scratch",
+      "purpose": "How a Production Manager takes a blank ProdScript and turns it into a show-ready book.",
+      "steps": [
+        {
+          "n": 1,
+          "action": "The PM signs in. Their touring company already exists. They click 'New project' in the top bar and name it 'Renaissance 2026'.",
+          "nodes": ["cmp-topbar", "cross-session", "tbl-projects", "tbl-tenants"],
+          "canFail": false,
+          "ifBreaks": ""
+        },
+        {
+          "n": 2,
+          "action": "They have two choices. Import a spreadsheet the Music Director already made (CSV of songs + timings), or start blank. They pick import and open /import.",
+          "nodes": ["surf-import", "cmp-sidenav"],
+          "canFail": false,
+          "ifBreaks": ""
+        },
+        {
+          "n": 3,
+          "action": "The import wizard reads the CSV. It maps each row to a song, works out the frame windows, and creates the song table entries.",
+          "nodes": ["surf-import", "tbl-songs", "cross-tc"],
+          "canFail": true,
+          "ifBreaks": "If a song row is missing a start time or duration, the whole import halts. The wizard shows what row failed and why."
+        },
+        {
+          "n": 4,
+          "action": "The PM opens the Master Timeline. They see 22 empty song lanes. No cues yet. Just the structure.",
+          "nodes": ["surf-home", "cmp-timeline", "cross-tlctx", "tbl-songs"],
+          "canFail": false,
+          "ifBreaks": ""
+        },
+        {
+          "n": 5,
+          "action": "They open the Preset Drawer at the bottom. Their touring company has 400 saved cue templates (blackouts, standard washes, video roll-ins). They drag a 'Front truss wash' preset onto Song 1 chorus.",
+          "nodes": ["cmp-presetdraw", "tbl-presets", "cmp-timeline", "tbl-cues"],
+          "canFail": true,
+          "ifBreaks": "If the rig inventory does not have the fixtures a preset needs, the preset should refuse to drop. Rig validation reads from the rig inventory table."
+        },
+        {
+          "n": 6,
+          "action": "Each department (lighting, video, playback, FX) gets its own lane. The PM assigns a department head to each lane. Everyone sees only their own lane by default.",
+          "nodes": ["cmp-timeline", "tbl-departments", "tbl-users", "tbl-cues"],
+          "canFail": false,
+          "ifBreaks": ""
+        },
+        {
+          "n": 7,
+          "action": "They spend a week filling in cues. When the show is ready, they open /versions and click 'Publish v1'. The system takes a frozen snapshot of every cue, song, and preset.",
+          "nodes": ["surf-versions", "tbl-versions", "tbl-cues", "tbl-songs"],
+          "canFail": true,
+          "ifBreaks": "If the version snapshot is missing any cue, the ack matrix would be wrong. Every version must be atomic."
+        },
+        {
+          "n": 8,
+          "action": "Every department head gets a notification in the Terminal Drawer to acknowledge v1. Once every head has acked, the show is 'sign-off complete' and cleared for rehearsal.",
+          "nodes": ["cmp-terminal", "tbl-versions", "tbl-acks", "tbl-users"],
+          "canFail": false,
+          "ifBreaks": ""
+        }
+      ]
+    }
+  ]
+}

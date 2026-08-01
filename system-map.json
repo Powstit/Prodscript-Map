@@ -1,5 +1,5 @@
 {
-  "version": "1.3.0",
+  "version": "1.4.0",
   "generatedAt": "2026-08-01",
   "app": "ProdScript",
   "repo": "https://github.com/Powstit/Prodscript",
@@ -1256,6 +1256,90 @@
       "features": [
         "team"
       ]
+    },
+    {
+      "id": "api-song-gen-ltc",
+      "label": "/api/songs/[id]/generate-ltc",
+      "category": "api",
+      "signoff": "wire",
+      "file": "src/app/api/songs/[id]/generate-ltc/route.ts",
+      "goldenJourney": true,
+      "notes": "Sprint 3: token exchange + finalise LTC WAV upload to Blob; save url + verified_at on song",
+      "journeys": [
+        "sprint-3",
+        "show-night"
+      ],
+      "features": [
+        "ltc-engine",
+        "songs"
+      ]
+    },
+    {
+      "id": "api-project-files",
+      "label": "/api/projects/[id]/files",
+      "category": "api",
+      "signoff": "wire",
+      "file": "src/app/api/projects/[id]/files/route.ts",
+      "goldenJourney": true,
+      "notes": "Sprint 3: department file upload/list with versioning",
+      "journeys": [
+        "sprint-3",
+        "show-night"
+      ],
+      "features": [
+        "file-upload",
+        "team"
+      ]
+    },
+    {
+      "id": "api-cue-detach",
+      "label": "DELETE /api/cues/[id]/attach-file",
+      "category": "api",
+      "signoff": "wire",
+      "file": "src/app/api/cues/[id]/attach-file/route.ts",
+      "goldenJourney": false,
+      "notes": "Sprint 3: remove attachment from cue jsonb",
+      "journeys": [
+        "sprint-3"
+      ],
+      "features": [
+        "cues",
+        "file-upload"
+      ]
+    },
+    {
+      "id": "tbl-project-files",
+      "label": "project_files",
+      "category": "db",
+      "signoff": "wire",
+      "file": "src/db/schema.ts",
+      "goldenJourney": true,
+      "notes": "Sprint 3: file uploads with dept + version + uploader",
+      "journeys": [
+        "sprint-3",
+        "show-night"
+      ],
+      "features": [
+        "file-upload",
+        "team"
+      ]
+    },
+    {
+      "id": "cmp-ltc-modal",
+      "label": "LtcModal",
+      "category": "component",
+      "signoff": "wire",
+      "file": "src/app/projects/[id]/timeline/timeline-client.tsx",
+      "goldenJourney": true,
+      "notes": "Sprint 3: LTC generator UI in timeline. Encodes + decode-verifies client-side then uploads to Blob.",
+      "journeys": [
+        "sprint-3",
+        "show-night"
+      ],
+      "features": [
+        "ltc-engine",
+        "timeline"
+      ]
     }
   ],
   "edges": [
@@ -1788,6 +1872,61 @@
       "from": "api-seed-depts",
       "to": "tbl-departments",
       "kind": "writes"
+    },
+    {
+      "from": "surf-timeline",
+      "to": "cmp-ltc-modal",
+      "kind": "renders"
+    },
+    {
+      "from": "cmp-ltc-modal",
+      "to": "cross-ltc-encoder",
+      "kind": "depends"
+    },
+    {
+      "from": "cmp-ltc-modal",
+      "to": "api-song-gen-ltc",
+      "kind": "writes"
+    },
+    {
+      "from": "api-song-gen-ltc",
+      "to": "tbl-songs",
+      "kind": "writes"
+    },
+    {
+      "from": "api-song-gen-ltc",
+      "to": "ext-vercel-blob",
+      "kind": "writes"
+    },
+    {
+      "from": "surf-project-detail",
+      "to": "api-project-files",
+      "kind": "writes"
+    },
+    {
+      "from": "api-project-files",
+      "to": "tbl-project-files",
+      "kind": "writes"
+    },
+    {
+      "from": "api-project-files",
+      "to": "ext-vercel-blob",
+      "kind": "writes"
+    },
+    {
+      "from": "api-cue-detach",
+      "to": "tbl-cues",
+      "kind": "writes"
+    },
+    {
+      "from": "tbl-project-files",
+      "to": "tbl-projects",
+      "kind": "depends"
+    },
+    {
+      "from": "tbl-project-files",
+      "to": "tbl-departments",
+      "kind": "depends"
     }
   ]
 }

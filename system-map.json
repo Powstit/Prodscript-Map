@@ -1,5 +1,5 @@
 {
-  "version": "1.5.0-MVP",
+  "version": "1.6.0-RLS",
   "generatedAt": "2026-08-01",
   "app": "ProdScript",
   "repo": "https://github.com/Powstit/Prodscript",
@@ -140,6 +140,27 @@
         "surf-signin",
         "surf-signup",
         "surf-home"
+      ]
+    },
+    {
+      "id": "IG-RLS-FORCE",
+      "rule": "Every tenant-scoped table has RLS ENABLED and FORCED with tenant_isolation policy. Never let a Neon role with BYPASSRLS run tenant-scoped queries.",
+      "protects": [
+        "tbl-tenants",
+        "tbl-users",
+        "tbl-projects",
+        "tbl-departments",
+        "tbl-presets",
+        "tbl-feedback",
+        "tbl-audit",
+        "tbl-shows",
+        "tbl-songs",
+        "tbl-cues",
+        "tbl-proposals",
+        "tbl-versions",
+        "tbl-rig",
+        "tbl-project-files",
+        "tbl-acks"
       ]
     }
   ],
@@ -1471,6 +1492,66 @@
       "features": [
         "versions"
       ]
+    },
+    {
+      "id": "cross-rls",
+      "label": "rls.ts (withTenantRls)",
+      "category": "cross",
+      "signoff": "locked",
+      "file": "src/db/rls.ts",
+      "goldenJourney": true,
+      "notes": "Post-MVP hardening: opens Neon pool transaction, SET LOCAL ROLE app_tenant, set_config app.current_tenant. Every tenant-scoped API route wraps its DB work in this.",
+      "journeys": [
+        "rls-hardening"
+      ],
+      "features": [
+        "tenant-security"
+      ]
+    },
+    {
+      "id": "cross-pool-db",
+      "label": "getPoolDb() (Neon Pool WS)",
+      "category": "cross",
+      "signoff": "locked",
+      "file": "src/db/client.ts",
+      "goldenJourney": true,
+      "notes": "Post-MVP: WebSocket-based Pool for interactive transactions (needed because Neon HTTP driver is stateless per query)",
+      "journeys": [
+        "rls-hardening"
+      ],
+      "features": [
+        "tenant-security"
+      ]
+    },
+    {
+      "id": "api-db-migrate-rls",
+      "label": "/api/admin/db-migrate-rls",
+      "category": "api",
+      "signoff": "locked",
+      "file": "src/app/api/admin/db-migrate-rls/route.ts",
+      "goldenJourney": true,
+      "notes": "Post-MVP: enable RLS + FORCE + tenant_isolation policies on all 15 tenant tables. Creates shadow role app_tenant NOBYPASSRLS. Includes probe mode for cross-tenant verification.",
+      "journeys": [
+        "rls-hardening"
+      ],
+      "features": [
+        "tenant-security"
+      ]
+    },
+    {
+      "id": "ig-rls",
+      "label": "IG-RLS-FORCE (iron gate)",
+      "category": "cross",
+      "signoff": "locked",
+      "file": "docs/system-map.json",
+      "goldenJourney": true,
+      "notes": "Iron gate: every tenant-scoped table must have RLS enabled AND FORCED with a tenant_isolation policy. Bypassing = data-leak severity.",
+      "journeys": [
+        "rls-hardening"
+      ],
+      "features": [
+        "tenant-security"
+      ]
     }
   ],
   "edges": [
@@ -2158,6 +2239,91 @@
       "from": "cross-audit",
       "to": "tbl-audit",
       "kind": "writes"
+    },
+    {
+      "from": "cross-rls",
+      "to": "cross-pool-db",
+      "kind": "depends"
+    },
+    {
+      "from": "cross-rls",
+      "to": "ext-neon",
+      "kind": "depends"
+    },
+    {
+      "from": "api-db-migrate-rls",
+      "to": "ext-neon",
+      "kind": "writes"
+    },
+    {
+      "from": "ig-rls",
+      "to": "tbl-tenants",
+      "kind": "protects"
+    },
+    {
+      "from": "ig-rls",
+      "to": "tbl-users",
+      "kind": "protects"
+    },
+    {
+      "from": "ig-rls",
+      "to": "tbl-projects",
+      "kind": "protects"
+    },
+    {
+      "from": "ig-rls",
+      "to": "tbl-cues",
+      "kind": "protects"
+    },
+    {
+      "from": "ig-rls",
+      "to": "tbl-songs",
+      "kind": "protects"
+    },
+    {
+      "from": "ig-rls",
+      "to": "tbl-feedback",
+      "kind": "protects"
+    },
+    {
+      "from": "ig-rls",
+      "to": "tbl-project-files",
+      "kind": "protects"
+    },
+    {
+      "from": "api-feedback",
+      "to": "cross-rls",
+      "kind": "depends"
+    },
+    {
+      "from": "api-projects",
+      "to": "cross-rls",
+      "kind": "depends"
+    },
+    {
+      "from": "api-project-detail",
+      "to": "cross-rls",
+      "kind": "depends"
+    },
+    {
+      "from": "api-timeline-data",
+      "to": "cross-rls",
+      "kind": "depends"
+    },
+    {
+      "from": "api-project-freeze",
+      "to": "cross-rls",
+      "kind": "depends"
+    },
+    {
+      "from": "api-project-files",
+      "to": "cross-rls",
+      "kind": "depends"
+    },
+    {
+      "from": "api-showpack",
+      "to": "cross-rls",
+      "kind": "depends"
     }
   ]
 }

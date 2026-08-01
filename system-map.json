@@ -1,5 +1,5 @@
 {
-  "version": "1.2.0",
+  "version": "1.3.0",
   "generatedAt": "2026-08-01",
   "app": "ProdScript",
   "repo": "https://github.com/Powstit/Prodscript",
@@ -1177,6 +1177,85 @@
         "team",
         "projects"
       ]
+    },
+    {
+      "id": "surf-timeline",
+      "label": "/projects/[id]/timeline",
+      "category": "surface",
+      "signoff": "wire",
+      "file": "src/app/projects/[id]/timeline/timeline-client.tsx",
+      "goldenJourney": true,
+      "notes": "Sprint 2: fullscreen timeline, 11 dept lanes, transport, cue drawer, zoom, minimap",
+      "journeys": [
+        "sprint-2",
+        "show-night"
+      ],
+      "features": [
+        "timeline"
+      ]
+    },
+    {
+      "id": "api-timeline-data",
+      "label": "/api/projects/[id]/timeline-data",
+      "category": "api",
+      "signoff": "wire",
+      "file": "src/app/api/projects/[id]/timeline-data/route.ts",
+      "goldenJourney": true,
+      "notes": "Sprint 2: single call returns songs+cues+depts+audio URL",
+      "journeys": [
+        "sprint-2",
+        "show-night"
+      ],
+      "features": [
+        "timeline"
+      ]
+    },
+    {
+      "id": "api-cue-position",
+      "label": "/api/cues/[id]/position",
+      "category": "api",
+      "signoff": "wire",
+      "file": "src/app/api/cues/[id]/position/route.ts",
+      "goldenJourney": true,
+      "notes": "Sprint 2: drag cue to new master_start_frames",
+      "journeys": [
+        "sprint-2"
+      ],
+      "features": [
+        "timeline",
+        "cues"
+      ]
+    },
+    {
+      "id": "api-ref-audio",
+      "label": "/api/projects/[id]/reference-audio",
+      "category": "api",
+      "signoff": "wire",
+      "file": "src/app/api/projects/[id]/reference-audio/route.ts",
+      "goldenJourney": true,
+      "notes": "Sprint 2: upload reference WAV, Blob, save URL to project row",
+      "journeys": [
+        "sprint-2"
+      ],
+      "features": [
+        "timeline",
+        "file-upload"
+      ]
+    },
+    {
+      "id": "api-seed-depts",
+      "label": "/api/departments/seed-defaults",
+      "category": "api",
+      "signoff": "wire",
+      "file": "src/app/api/departments/seed-defaults/route.ts",
+      "goldenJourney": false,
+      "notes": "Sprint 2: seed 11 default departments on first timeline load",
+      "journeys": [
+        "sprint-2"
+      ],
+      "features": [
+        "team"
+      ]
     }
   ],
   "edges": [
@@ -1633,6 +1712,81 @@
     {
       "from": "cross-tenancy",
       "to": "tbl-users",
+      "kind": "writes"
+    },
+    {
+      "from": "surf-timeline",
+      "to": "api-timeline-data",
+      "kind": "reads"
+    },
+    {
+      "from": "surf-timeline",
+      "to": "api-cue-position",
+      "kind": "writes"
+    },
+    {
+      "from": "surf-timeline",
+      "to": "api-ref-audio",
+      "kind": "writes"
+    },
+    {
+      "from": "surf-timeline",
+      "to": "api-seed-depts",
+      "kind": "writes"
+    },
+    {
+      "from": "surf-timeline",
+      "to": "cross-wavesurfer",
+      "kind": "depends"
+    },
+    {
+      "from": "surf-timeline",
+      "to": "cross-timeline-editor",
+      "kind": "depends"
+    },
+    {
+      "from": "surf-timeline",
+      "to": "cross-smpte-tc",
+      "kind": "depends"
+    },
+    {
+      "from": "api-timeline-data",
+      "to": "tbl-songs",
+      "kind": "reads"
+    },
+    {
+      "from": "api-timeline-data",
+      "to": "tbl-cues",
+      "kind": "reads"
+    },
+    {
+      "from": "api-timeline-data",
+      "to": "tbl-departments",
+      "kind": "reads"
+    },
+    {
+      "from": "api-timeline-data",
+      "to": "tbl-projects",
+      "kind": "reads"
+    },
+    {
+      "from": "api-cue-position",
+      "to": "tbl-cues",
+      "kind": "writes"
+    },
+    {
+      "from": "api-ref-audio",
+      "to": "tbl-projects",
+      "kind": "writes"
+    },
+    {
+      "from": "api-ref-audio",
+      "to": "ext-vercel-blob",
+      "kind": "writes"
+    },
+    {
+      "from": "api-seed-depts",
+      "to": "tbl-departments",
       "kind": "writes"
     }
   ]

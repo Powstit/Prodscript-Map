@@ -17,9 +17,9 @@ Prose docs cannot answer "if I change the cues table, which 7 surfaces regress" 
 
 ## How it stays honest
 
-- The data lives in the main app repo at [`Powstit/Prodscript/docs/system-map.json`](https://github.com/Powstit/Prodscript/blob/main/docs/system-map.json).
-- The renderer here fetches that JSON on every load. No sync issues.
-- Any commit to the main repo that touches surface code should update the JSON in the same commit. Enforced by a pre-commit hook in the main repo.
+- The data lives in this repo at `system-map.json`. Public, static, one file.
+- The main app repo (`Powstit/Prodscript`, private) keeps a mirrored copy at `docs/system-map.json` so app-side commits update it in the same PR.
+- Any commit to the main repo that touches surface code should update both copies. A future GitHub Action will auto-sync.
 
 ## Stack
 

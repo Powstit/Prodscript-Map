@@ -1,9 +1,7 @@
 /* ProdScript System Map · self-contained interactive graph renderer */
 
-const DATA_URL =
-  "https://raw.githubusercontent.com/Powstit/Prodscript/main/docs/system-map.json";
-const REPO_BASE =
-  "https://github.com/Powstit/Prodscript/blob/main/";
+const DATA_URL = "/system-map.json";
+const REPO_BASE = "https://github.com/Powstit/Prodscript/blob/main/";
 
 let SPEC = null;
 let CY = null;

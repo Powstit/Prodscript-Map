@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0",
+  "version": "1.2.0",
   "generatedAt": "2026-08-01",
   "app": "ProdScript",
   "repo": "https://github.com/Powstit/Prodscript",
@@ -1004,6 +1004,179 @@
         "ltc-engine",
         "timeline"
       ]
+    },
+    {
+      "id": "surf-projects",
+      "label": "/projects",
+      "category": "surface",
+      "signoff": "wire",
+      "file": "src/app/projects/page.tsx",
+      "goldenJourney": true,
+      "notes": "Sprint 1: list projects, Create button",
+      "journeys": [
+        "sprint-1",
+        "new-show"
+      ],
+      "features": [
+        "projects"
+      ]
+    },
+    {
+      "id": "surf-project-new",
+      "label": "/projects/new",
+      "category": "surface",
+      "signoff": "wire",
+      "file": "src/app/projects/new/page.tsx",
+      "goldenJourney": true,
+      "notes": "Sprint 1: create project form",
+      "journeys": [
+        "sprint-1",
+        "new-show"
+      ],
+      "features": [
+        "projects"
+      ]
+    },
+    {
+      "id": "surf-project-detail",
+      "label": "/projects/[id]",
+      "category": "surface",
+      "signoff": "wire",
+      "file": "src/app/projects/[id]/page.tsx",
+      "goldenJourney": true,
+      "notes": "Sprint 1: overview/songs/cues/team/files sub-tabs",
+      "journeys": [
+        "sprint-1",
+        "new-show"
+      ],
+      "features": [
+        "projects",
+        "songs",
+        "cues",
+        "team"
+      ]
+    },
+    {
+      "id": "api-projects",
+      "label": "/api/projects",
+      "category": "api",
+      "signoff": "wire",
+      "file": "src/app/api/projects/route.ts",
+      "goldenJourney": true,
+      "notes": "Sprint 1: list + create",
+      "journeys": [
+        "sprint-1"
+      ],
+      "features": [
+        "projects"
+      ]
+    },
+    {
+      "id": "api-project-detail",
+      "label": "/api/projects/[id]",
+      "category": "api",
+      "signoff": "wire",
+      "file": "src/app/api/projects/[id]/route.ts",
+      "goldenJourney": true,
+      "notes": "Sprint 1: get + patch + delete",
+      "journeys": [
+        "sprint-1"
+      ],
+      "features": [
+        "projects"
+      ]
+    },
+    {
+      "id": "api-project-team",
+      "label": "/api/projects/[id]/team",
+      "category": "api",
+      "signoff": "wire",
+      "file": "src/app/api/projects/[id]/team/route.ts",
+      "goldenJourney": true,
+      "notes": "Sprint 1: list org members",
+      "journeys": [
+        "sprint-1"
+      ],
+      "features": [
+        "team"
+      ]
+    },
+    {
+      "id": "api-project-invite",
+      "label": "/api/projects/[id]/invite",
+      "category": "api",
+      "signoff": "wire",
+      "file": "src/app/api/projects/[id]/invite/route.ts",
+      "goldenJourney": true,
+      "notes": "Sprint 1: Clerk invite with role",
+      "journeys": [
+        "sprint-1"
+      ],
+      "features": [
+        "team"
+      ]
+    },
+    {
+      "id": "api-songs",
+      "label": "/api/songs",
+      "category": "api",
+      "signoff": "wire",
+      "file": "src/app/api/songs/[id]/route.ts",
+      "goldenJourney": true,
+      "notes": "Sprint 1: add/edit/delete songs",
+      "journeys": [
+        "sprint-1"
+      ],
+      "features": [
+        "songs"
+      ]
+    },
+    {
+      "id": "api-cues",
+      "label": "/api/cues",
+      "category": "api",
+      "signoff": "wire",
+      "file": "src/app/api/cues/[id]/route.ts",
+      "goldenJourney": true,
+      "notes": "Sprint 1: add/edit/delete/attach-file cues",
+      "journeys": [
+        "sprint-1"
+      ],
+      "features": [
+        "cues",
+        "file-upload"
+      ]
+    },
+    {
+      "id": "cross-permissions",
+      "label": "permissions.ts",
+      "category": "cross",
+      "signoff": "wire",
+      "file": "src/lib/permissions.ts",
+      "goldenJourney": true,
+      "notes": "Sprint 1: canCreateProject, canPublish, etc.",
+      "journeys": [
+        "sprint-1"
+      ],
+      "features": [
+        "team"
+      ]
+    },
+    {
+      "id": "cross-tenancy",
+      "label": "tenancy.ts (Clerk\u2192UUID)",
+      "category": "cross",
+      "signoff": "wire",
+      "file": "src/lib/tenancy.ts",
+      "goldenJourney": true,
+      "notes": "Sprint 1: hash Clerk IDs into UUIDs; ensureIdentity() lazily creates tenants+users rows on first write",
+      "journeys": [
+        "sprint-1"
+      ],
+      "features": [
+        "team",
+        "projects"
+      ]
     }
   ],
   "edges": [
@@ -1366,6 +1539,101 @@
       "from": "cross-ltc-encoder",
       "to": "cross-smpte-tc",
       "kind": "depends"
+    },
+    {
+      "from": "surf-projects",
+      "to": "api-projects",
+      "kind": "reads"
+    },
+    {
+      "from": "surf-project-new",
+      "to": "api-projects",
+      "kind": "writes"
+    },
+    {
+      "from": "surf-project-detail",
+      "to": "api-project-detail",
+      "kind": "reads"
+    },
+    {
+      "from": "surf-project-detail",
+      "to": "api-songs",
+      "kind": "writes"
+    },
+    {
+      "from": "surf-project-detail",
+      "to": "api-cues",
+      "kind": "writes"
+    },
+    {
+      "from": "surf-project-detail",
+      "to": "api-project-team",
+      "kind": "reads"
+    },
+    {
+      "from": "surf-project-detail",
+      "to": "api-project-invite",
+      "kind": "writes"
+    },
+    {
+      "from": "api-projects",
+      "to": "tbl-projects",
+      "kind": "writes"
+    },
+    {
+      "from": "api-projects",
+      "to": "cross-tenancy",
+      "kind": "depends"
+    },
+    {
+      "from": "api-project-detail",
+      "to": "tbl-projects",
+      "kind": "reads"
+    },
+    {
+      "from": "api-project-detail",
+      "to": "tbl-projects",
+      "kind": "writes"
+    },
+    {
+      "from": "api-songs",
+      "to": "tbl-songs",
+      "kind": "writes"
+    },
+    {
+      "from": "api-cues",
+      "to": "tbl-cues",
+      "kind": "writes"
+    },
+    {
+      "from": "api-cues",
+      "to": "ext-vercel-blob",
+      "kind": "writes"
+    },
+    {
+      "from": "api-project-invite",
+      "to": "ext-clerk",
+      "kind": "writes"
+    },
+    {
+      "from": "api-project-team",
+      "to": "ext-clerk",
+      "kind": "reads"
+    },
+    {
+      "from": "cross-permissions",
+      "to": "ext-clerk",
+      "kind": "depends"
+    },
+    {
+      "from": "cross-tenancy",
+      "to": "tbl-tenants",
+      "kind": "writes"
+    },
+    {
+      "from": "cross-tenancy",
+      "to": "tbl-users",
+      "kind": "writes"
     }
   ]
 }

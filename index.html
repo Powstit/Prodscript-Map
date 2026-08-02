@@ -3,71 +3,106 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ProdScript · System Map</title>
+  <meta name="theme-color" content="#09090b" />
+  <title>ProdScript · Team Flow Map</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body class="landing">
-  <header id="topbar">
+<body class="team-map-page">
+  <header class="flow-topbar">
     <div class="brand">
       <span class="brand-mark">P/S</span>
       <div class="brand-txt">
-        <div class="brand-title">ProdScript System Map</div>
-        <div class="brand-sub" id="version-line">loading...</div>
+        <div class="brand-title">Team Flow Map</div>
+        <div class="brand-sub">Who connects the production</div>
       </div>
     </div>
+    <div class="flow-status"><span></span> Example production · planning view</div>
   </header>
 
-  <main class="landing-main">
-    <div class="landing-grid">
-      <a class="landing-card" href="/graph/" data-testid="card-graph">
-        <div class="landing-card-tag">FOR ENGINEERS</div>
-        <div class="landing-card-title">Graph</div>
-        <div class="landing-card-body">Boxes and lines. Click a node for its blast radius, dependencies, and the Iron Gates that guard it. Use before touching any file.</div>
-        <div class="landing-card-arrow">Open graph</div>
-      </a>
+  <main class="flow-shell">
+    <section class="flow-workspace" aria-label="Interactive production team map">
+      <div class="flow-intro">
+        <div>
+          <div class="eyebrow">ONE MASTER · ONE CONNECTED PROD</div>
+          <h1>See how the whole show moves.</h1>
+          <p>Select any person to see who they report to, what they own, and what moves through them.</p>
+        </div>
+        <div class="k-factor">
+          <span class="k-label">INVITATION EFFECT</span>
+          <strong>1 → 8 → 20</strong>
+          <span>Master · Leads · Connected team</span>
+        </div>
+      </div>
 
-      <a class="landing-card" href="/journeys/" data-testid="card-journeys">
-        <div class="landing-card-tag">FOR HUMANS</div>
-        <div class="landing-card-title">Journeys</div>
-        <div class="landing-card-body">Step-by-step customer paths through the app, in plain English. From invite to show night to owner review.</div>
-        <div class="landing-card-arrow">Open journeys</div>
-      </a>
+      <div class="flow-legend" aria-label="Connection legend">
+        <button class="legend-toggle active" data-flow="report"><i class="line report"></i>Reports to</button>
+        <button class="legend-toggle active" data-flow="invite"><i class="line invite"></i>Invites</button>
+        <button class="legend-toggle active" data-flow="work"><i class="line work"></i>Cues & files</button>
+        <button class="legend-toggle active" data-flow="approval"><i class="line approval"></i>Approval & publish</button>
+        <span class="legend-help">Click a relationship to show or hide it</span>
+      </div>
 
-      <a class="landing-card" href="/features/" data-testid="card-features">
-        <div class="landing-card-tag">FOR HUMANS</div>
-        <div class="landing-card-title">Features</div>
-        <div class="landing-card-body">Every feature as a card. What it does, a real scenario, who uses it, and the pieces that power it under the hood.</div>
-        <div class="landing-card-arrow">Open features</div>
-      </a>
-    </div>
+      <div id="flow-canvas" class="flow-canvas">
+        <svg id="flow-lines" aria-hidden="true"></svg>
+        <div class="flow-tier tier-command">
+          <div class="tier-label">COMMAND</div>
+          <button class="person-card primary selected" data-role="primary-master">
+            <span class="person-icon">PM</span><span><strong>Primary Master</strong><small>Owns the production</small></span><b>01</b>
+          </button>
+          <button class="person-card" data-role="co-master">
+            <span class="person-icon">CM</span><span><strong>Co-Master</strong><small>Shares project control</small></span><b>01</b>
+          </button>
+        </div>
+
+        <div class="flow-tier tier-leads">
+          <div class="tier-label">DEPARTMENT LEADS</div>
+          <div class="lead-grid">
+            <button class="person-card" data-role="playback"><span class="person-icon">PB</span><span><strong>Playback</strong><small>LTC & reference media</small></span><b>01</b></button>
+            <button class="person-card" data-role="lighting"><span class="person-icon">LX</span><span><strong>Lighting</strong><small>Fixtures & looks</small></span><b>01</b></button>
+            <button class="person-card" data-role="video"><span class="person-icon">VX</span><span><strong>Video</strong><small>Screens & content</small></span><b>01</b></button>
+            <button class="person-card" data-role="sfx"><span class="person-icon">FX</span><span><strong>SFX</strong><small>Flames, CO₂ & effects</small></span><b>01</b></button>
+            <button class="person-card" data-role="audio"><span class="person-icon">AU</span><span><strong>Audio</strong><small>FOH & monitor systems</small></span><b>01</b></button>
+            <button class="person-card" data-role="stage"><span class="person-icon">SM</span><span><strong>Stage Management</strong><small>Calls & stage movement</small></span><b>01</b></button>
+          </div>
+        </div>
+
+        <div class="flow-tier tier-team">
+          <div class="tier-label">CONNECTED TEAM</div>
+          <button class="person-card wide" data-role="members"><span class="person-icon">TM</span><span><strong>Department Members</strong><small>Complete assigned cues, files and acknowledgements</small></span><b>10–20</b></button>
+          <button class="person-card" data-role="viewer"><span class="person-icon">VW</span><span><strong>Viewer / Management</strong><small>Reviews the show</small></span><b>02+</b></button>
+          <button class="person-card" data-role="recipient"><span class="person-icon">EX</span><span><strong>External Pack Recipient</strong><small>Receives published work</small></span><b>∞</b></button>
+        </div>
+      </div>
+
+      <div class="flow-sequence" aria-label="Production handoff sequence">
+        <div><span>01</span><strong>Invite</strong><small>Role + reporting line</small></div><i></i>
+        <div><span>02</span><strong>Prepare</strong><small>Cues + files submitted</small></div><i></i>
+        <div><span>03</span><strong>Approve</strong><small>Master reviews work</small></div><i></i>
+        <div><span>04</span><strong>Publish</strong><small>Versioned show packs</small></div><i></i>
+        <div><span>05</span><strong>Acknowledge</strong><small>Everyone confirms receipt</small></div>
+      </div>
+    </section>
+
+    <aside class="role-panel" aria-live="polite">
+      <div class="panel-kicker">SELECTED ROLE</div>
+      <div class="role-head"><span id="detail-icon">PM</span><div><h2 id="detail-title">Primary Master</h2><p id="detail-subtitle">Owns the production</p></div></div>
+      <div class="detail-block"><label>REPORTS TO</label><p id="detail-reports">Production company / artist management</p></div>
+      <div class="detail-block"><label>PRIMARY GOAL</label><p id="detail-goal">Build, approve and publish one trusted version of the show.</p></div>
+      <div class="detail-block"><label>RESPONSIBLE FOR</label><ul id="detail-owns"></ul></div>
+      <div class="detail-block"><label>KEY HANDOFF</label><p id="detail-handoff"></p></div>
+      <div class="detail-block connections"><label>DIRECT CONNECTIONS</label><div id="detail-connections"></div></div>
+      <div class="future-card">
+        <span>FUTURE</span>
+        <strong>Your weekly connection report</strong>
+        <p>“Your prod connected 18 people this week. 42 cues moved, 6 approvals landed, and 94% acknowledged the latest pack.”</p>
+        <button disabled>Preview coming later</button>
+      </div>
+    </aside>
   </main>
 
-  <footer class="landing-footer">
-    <a href="https://github.com/Powstit/Prodscript-Map" target="_blank" class="footer-link">GitHub</a>
-    <span class="footer-sep">/</span>
-    <span id="footer-version">v...</span>
-    <span class="footer-sep">/</span>
-    <span id="footer-updated">updated ...</span>
-  </footer>
-
-  <script>
-    (async () => {
-      try {
-        const res = await fetch("/system-map.json", { cache: "no-store" });
-        if (!res.ok) throw new Error("map " + res.status);
-        const map = await res.json();
-        document.getElementById("version-line").textContent =
-          `v${map.version} / ${map.nodes.length} nodes / ${map.edges.length} edges`;
-        document.getElementById("footer-version").textContent = "v" + map.version;
-        document.getElementById("footer-updated").textContent = "updated " + map.generatedAt;
-      } catch (e) {
-        document.getElementById("version-line").textContent = "error loading map";
-        console.error(e);
-      }
-    })();
-  </script>
+  <script src="/team-flow.js"></script>
 </body>
 </html>
